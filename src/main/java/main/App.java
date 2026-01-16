@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import fileio.InputLoader;
+
 /**
  * main.App represents the main application logic that processes input commands,
  * generates outputs, and writes them to a file
@@ -29,22 +31,14 @@ public class App {
      * @param inputPath path to the input file containing commands
      * @param outputPath path to the file where results should be written
      */
-    public static void run(final String inputPath, final String outputPath) {
+    public static void run(final String inputPath, final String outputPath) throws IOException {
         // feel free to change this if needed
         // however keep 'outputs' variable name to be used for writing
         List<ObjectNode> outputs = new ArrayList<>();
 
-        /*
-            TODO 1 :
-            Load initial user data and commands. we strongly recommend using jackson library.
-            you can use the reading from hw1 as a reference.
-            however you can use some of the more advanced features of
-            jackson library, available here: https://www.baeldung.com/jackson-annotations
-        */
-
-        // TODO 2: process commands.
-
-        // TODO 3: create objectnodes for output, add them to outputs list.
+        InputLoader inputLoader = new InputLoader(INPUT_USERS_FIELD, inputPath);
+        AppBrain brain = new AppBrain(inputLoader, outputs);
+        brain.runApp();
 
         // DO NOT CHANGE THIS SECTION IN ANY WAY
         try {

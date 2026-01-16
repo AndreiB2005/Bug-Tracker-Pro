@@ -1,0 +1,97 @@
+package commandCenter;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import main.AppBrain;
+import fileio.CommandInput;
+import factories.ticketFactories.*;
+import users.User;
+import commandCenter.commands.*;
+import commandCenter.errors.CommandError;
+import commandCenter.errors.UserNotFoundError;
+import commandCenter.errors.NotAllowedError;
+
+public class CommandHandler {
+    private final RemoteControl remote = new RemoteControl();
+    private final AppBrain brain;
+    private int currTicketId = 0;
+
+    private static final Map<String, List<String>> accessMap = Map.of(
+            "reportTicket", List.of("REPORTER"),
+            "viewTickets", List.of("DEVELOPER", "MANAGER", "REPORTER"),
+            "lostInvestors", List.of("MANAGER"),
+            "createMilestone", List.of("MANAGER"),
+            "viewMilestones", List.of("MANAGER", "DEVELOPER")
+    );
+    
+    public CommandHandler(final AppBrain brain) {
+        this.brain = brain;
+    }
+    
+    public Output handleCommand(final CommandInput input) {
+        Command command = generateCommand(input);
+        assert command != null;
+        Output commandOutput;
+        try {
+            User currUser = verifyUser(input.getUsername());
+            if (currUser == null) {
+                throw new UserNotFoundError(input.getUsername());
+            }
+            if (!hasAccess(input.getCommand(), currUser)) {
+                List<String> requiredRole = accessMap.get(input.getCommand());
+                throw new NotAllowedError(requiredRole, currUser.getRole());
+            }
+            command.setCurrUser(currUser);
+            remote.setCommand(command);
+            commandOutput = remote.executeCommand();
+        } catch (CommandError error) {
+            commandOutput = new Output.OutputBuilder(command)
+                    .assignError(error.getMessage())
+                    .build();
+        }
+        return commandOutput;
+    }
+    
+    private User verifyUser(final String username) {
+        for (User currUser : brain.getUsers()) {
+            if (username.equals(currUser.getUsername())) {
+                return currUser;
+            }
+        }
+        return null;
+    }
+    
+    private boolean hasAccess(final String commandName, final User currUser) {
+        List<String> commandAccess = accessMap.get(commandName);
+        for (String userRole : commandAccess) {
+            if (userRole.equals(currUser.getRole())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Command generateCommand(final CommandInput input) {
+        switch (input.getCommand()) {
+            case "reportTicket":
+                TicketFactory factory = brain.getTicketFactoryMap()
+                        .get(input.getParams().getType());
+                LocalDate timestamp = LocalDate.parse(input.getTimestamp());
+                factory.setCurrId(currTicketId);
+                currTicketId++;
+                return new ReportTicket(input, factory, brain.getTickets(),
+                        brain.isTestPhase(timestamp));
+            case "viewTickets":
+                return new ViewTickets(input, brain.getTicketPrinter());
+            case "lostInvestors":
+                return new LostInvestors(input, brain);
+            case "createMilestone":
+                return new CreateMilestone(input, brain.getMilestoneCreator());
+            case "viewMilestones":
+                return new ViewMilestones(input, brain.getMilestonePrinter(), brain.getCurrDate());
+            default:
+                return null;
+        }
+    }
+}
