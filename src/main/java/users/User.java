@@ -12,7 +12,6 @@ public abstract class User {
     private final String email;
     private final Role role;
     private final List<Milestone> userMilestones = new ArrayList<>();
-    private final List<Ticket> assignedTickets = new ArrayList<>();
 
     private enum Role {
         REPORTER,
@@ -36,10 +35,6 @@ public abstract class User {
 
     public List<Milestone> getUserMilestones() {
         return userMilestones;
-    }
-
-    public List<Ticket> getAssignedTickets() {
-        return assignedTickets;
     }
 
     public abstract List<Ticket> getUserTickets(final List<Ticket> tickets);

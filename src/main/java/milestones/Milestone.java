@@ -8,31 +8,30 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Objects;
-
 import main.AppBrain;
 import fileio.CommandInput;
-import users.User;
+import users.Developer;
+import users.Manager;
 import tickets.Ticket;
 
 @Getter
 public class Milestone {
-    private final User managerMilestone;
+    private final Manager managerMilestone;
     private final String name;
     private final List<Milestone> blockingFor = new ArrayList<>();
     private final LocalDate dueDate;
     private final LocalDate createdAt;
     private final List<Ticket> tickets;
-    private final List<User> assignedDevs;
+    private final List<Developer> assignedDevs;
     private final List<Milestone> blockedBy = new ArrayList<>();
     private int timesUpdated = 0;
 
     public Milestone(final CommandInput commandInput, final AppBrain brain) {
-        managerMilestone = getManager(brain.getUsers(), commandInput.getUsername());
+        managerMilestone = getManager(brain.getManagers(), commandInput.getUsername());
         name = commandInput.getName();
         dueDate = LocalDate.parse(commandInput.getDueDate());
         tickets = createTicketsList(commandInput.getTickets(), brain.getTickets());
-        assignedDevs = createDevsList(commandInput.getAssignedDevs(), brain.getUsers());
+        assignedDevs = createDevsList(commandInput.getAssignedDevs(), brain.getDevelopers());
         createdAt = LocalDate.parse(commandInput.getTimestamp());
     }
 
@@ -52,7 +51,7 @@ public class Milestone {
         }
         milestoneNode.set("tickets", ticketsId);
         ArrayNode devsNames = mapper.createArrayNode();
-        for (User currDev : assignedDevs) {
+        for (Developer currDev : assignedDevs) {
             devsNames.add(currDev.getUsername());
         }
         milestoneNode.set("assignedDevs", devsNames);
@@ -73,7 +72,7 @@ public class Milestone {
         milestoneNode.set("closedTickets", closedTickets);
         milestoneNode.put("completionPercentage", getCompletionPercentage());
         ArrayNode repartition = mapper.createArrayNode();
-        for (User currDev : assignedDevs) {
+        for (Developer currDev : assignedDevs) {
             ObjectNode devStats = mapper.createObjectNode();
             devStats.put("developer", currDev.getUsername());
             ArrayNode assignedTickets = mapper.createArrayNode();
@@ -147,19 +146,19 @@ public class Milestone {
         return Math.min(1.0, Math.round(percentage * 100.0) / 100.0);
     }
 
-    private User getManager(final List<User> allUsers, final String username) {
-        for (User currUser : allUsers) {
-            if (username.equals(currUser.getUsername())) {
-                return currUser;
+    private Manager getManager(final List<Manager> allManagers, final String username) {
+        for (Manager currManager : allManagers) {
+            if (username.equals(currManager.getUsername())) {
+                return currManager;
             }
         }
         return null;
     }
 
-    private List<User> createDevsList(final List<String> assignedDevs,
-                                      final List<User> allUsers) {
+    private List<Developer> createDevsList(final List<String> assignedDevs,
+                                      final List<Developer> allDevelopers) {
         return assignedDevs.stream()
-                .map(devName -> allUsers.stream()
+                .map(devName -> allDevelopers.stream()
                         .filter(developer -> devName.equals(developer.getUsername()))
                         .findFirst()
                         .orElse(null)

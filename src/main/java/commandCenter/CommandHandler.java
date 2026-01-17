@@ -7,6 +7,7 @@ import main.AppBrain;
 import fileio.CommandInput;
 import factories.ticketFactories.*;
 import users.User;
+import users.Developer;
 import commandCenter.commands.*;
 import commandCenter.errors.CommandError;
 import commandCenter.errors.UserNotFoundError;
@@ -22,7 +23,10 @@ public class CommandHandler {
             "viewTickets", List.of("DEVELOPER", "MANAGER", "REPORTER"),
             "lostInvestors", List.of("MANAGER"),
             "createMilestone", List.of("MANAGER"),
-            "viewMilestones", List.of("MANAGER", "DEVELOPER")
+            "viewMilestones", List.of("MANAGER", "DEVELOPER"),
+            "assignTicket", List.of("DEVELOPER"),
+            "viewAssignedTickets", List.of("DEVELOPER"),
+            "undoAssignTicket", List.of("DEVELOPER")
     );
     
     public CommandHandler(final AppBrain brain) {
@@ -90,8 +94,26 @@ public class CommandHandler {
                 return new CreateMilestone(input, brain.getMilestoneCreator());
             case "viewMilestones":
                 return new ViewMilestones(input, brain.getMilestonePrinter(), brain.getCurrDate());
+            case "assignTicket":
+                return new AssignTicket(input, brain.getTicketDispenser(),
+                        getDeveloper(input.getUsername()));
+            case "viewAssignedTickets":
+                return new ViewAssignedTickets(input, brain.getTicketPrinterDev(),
+                        getDeveloper(input.getUsername()));
+            case "undoAssignTicket":
+                return new UndoAssignTicket(input, brain.getTicketRemover(),
+                        getDeveloper(input.getUsername()));
             default:
                 return null;
         }
+    }
+
+    private Developer getDeveloper(final String devName) {
+        for (Developer currDev : brain.getDevelopers()) {
+            if (devName.equals(currDev.getUsername())) {
+                return currDev;
+            }
+        }
+        return null;
     }
 }

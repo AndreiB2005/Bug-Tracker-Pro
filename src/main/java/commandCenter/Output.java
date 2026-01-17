@@ -31,7 +31,12 @@ public class Output {
         public OutputBuilder assignTicketList(final List<Ticket> ticketList) {
             ArrayNode arrayTickets = MAPPER.createArrayNode();
             for (Ticket ticket : ticketList) {
-                arrayTickets.add(ticket.createOutput(MAPPER));
+                ObjectNode ticketOutput = ticket.createOutput(MAPPER);
+                ticketOutput.put("solvedAt", ticket.getSolvedAt());
+                ticketOutput.put("assignedTo", ticket.getAssignedTo());
+                ticketOutput.put("reportedBy", ticket.getReportedBy());
+                ticketOutput.set("comments", ticket.createCommentNode(MAPPER));
+                arrayTickets.add(ticketOutput);
             }
             objNode.set("tickets", arrayTickets);
             return this;
@@ -44,6 +49,18 @@ public class Output {
                 arrayMilestones.add(milestone.createOutput(MAPPER, currDate));
             }
             objNode.set("milestones", arrayMilestones);
+            return this;
+        }
+
+        public OutputBuilder assignDeveloperTicketsList(final List<Ticket> ticketList) {
+            ArrayNode arrayTickets = MAPPER.createArrayNode();
+            for (Ticket ticket : ticketList) {
+                ObjectNode ticketNode = ticket.createOutput(MAPPER);
+                ticketNode.put("reportedBy", ticket.getReportedBy());
+                ticketNode.set("comments", ticket.createCommentNode(MAPPER));
+                arrayTickets.add(ticketNode);
+            }
+            objNode.set("assignedTickets", arrayTickets);
             return this;
         }
 

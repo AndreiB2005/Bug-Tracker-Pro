@@ -38,6 +38,10 @@ public abstract class Ticket {
             this.priorityLevel = priorityLevel;
         }
 
+        public int getPriorityLevel() {
+            return priorityLevel;
+        }
+
         public Priority getNextLevel() {
             return switch (this) {
                 case LOW -> MEDIUM;
@@ -87,9 +91,10 @@ public abstract class Ticket {
         ticketNode.put("status", getStatus());
         ticketNode.put("createdAt", getCreatedAt());
         ticketNode.put("assignedAt", getAssignedAt());
-        ticketNode.put("solvedAt", getSolvedAt());
-        ticketNode.put("assignedTo", getAssignedTo());
-        ticketNode.put("reportedBy", reportedBy);
+        return ticketNode;
+    }
+
+    public ArrayNode createCommentNode(final ObjectMapper mapper) {
         ArrayNode arrayComments = mapper.createArrayNode();
         for (Ticket.Comment comment : comments) {
             ObjectNode commentNode = mapper.createObjectNode();
@@ -98,8 +103,7 @@ public abstract class Ticket {
             commentNode.put("createdAt", comment.getCreatedAt());
             arrayComments.add(commentNode);
         }
-        ticketNode.set("comments", arrayComments);
-        return ticketNode;
+        return arrayComments;
     }
 
     public int getId() {
@@ -146,11 +150,31 @@ public abstract class Ticket {
         return comments;
     }
 
+    public String getExpertiseArea() {
+        return expertiseArea.toString();
+    }
+
+    public int getPriorityLevel() {
+        return businessPriority.getPriorityLevel();
+    }
+
     public void setBusinessPriority(final String priorityLevel) {
         businessPriority = Priority.valueOf(priorityLevel);
     }
 
     public void setNextPriorityLevel() {
         businessPriority = businessPriority.getNextLevel();
+    }
+
+    public void setStatus(final String statusLevel) {
+        status = Status.valueOf(statusLevel);
+    }
+
+    public void setAssignedAt(final LocalDate assignedAt) {
+        this.assignedAt = assignedAt;
+    }
+
+    public void setAssignedTo(final String assignedTo) {
+        this.assignedTo = assignedTo;
     }
 }

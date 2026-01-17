@@ -13,6 +13,8 @@ import fileio.CommandInput;
 import factories.userFactories.*;
 import factories.ticketFactories.*;
 import users.User;
+import users.Developer;
+import users.Manager;
 import tickets.Ticket;
 import milestones.Milestone;
 import commandCenter.commands.*;
@@ -25,6 +27,8 @@ public class AppBrain {
     private static final int TESTING_PERIOD = 12;
 
     private final List<User> users = new ArrayList<>();
+    private final List<Developer> developers =  new ArrayList<>();
+    private final List<Manager> managers = new ArrayList<>();
     private final List<CommandInput> commandInputs;
     private final List<Ticket> tickets = new ArrayList<>();
     private final List<Milestone> milestones = new ArrayList<>();
@@ -33,6 +37,9 @@ public class AppBrain {
     private final TicketPrinter ticketPrinter = new TicketPrinter(tickets);
     private final MilestoneCreator milestoneCreator = new MilestoneCreator(this);
     private final MilestonePrinter milestonePrinter = new MilestonePrinter(milestones);
+    private final TicketDispenser ticketDispenser = new TicketDispenser(this);
+    private final AssignedTicketPrinter ticketPrinterDev = new AssignedTicketPrinter();
+    private final TicketRemover ticketRemover = new TicketRemover();
     private LocalDate testPhaseStart;
     private LocalDate currDate;
     private boolean stopRun = false;
@@ -84,7 +91,7 @@ public class AppBrain {
     private void createUserList(List<UserInput> userInputList) {
         for (UserInput input : userInputList) {
             UserFactory factory = userFactoryMap.get(input.getRole());
-            factory.addUser(users, input);
+            factory.addUser(this, input);
         }
     }
 

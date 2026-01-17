@@ -1,14 +1,14 @@
 package factories.userFactories;
 
-import java.util.List;
+import main.AppBrain;
 import fileio.UserInput;
 import users.User;
 
 public abstract class UserFactory {
-    public void addUser(final List<User> userList, final UserInput userInput) {
-        User currUser = createUser(userInput);
-        userList.add(currUser);
+    public void addUser(final AppBrain brain, final UserInput userInput) {
+        User currUser = createUser(brain, userInput);
+        brain.getUsers().add(currUser);
     }
 
-    protected abstract User createUser(final UserInput userInput);
+    protected abstract User createUser(final AppBrain brain, final UserInput userInput);
 }

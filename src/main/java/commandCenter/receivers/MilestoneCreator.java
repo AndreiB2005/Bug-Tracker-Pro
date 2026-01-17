@@ -6,7 +6,7 @@ import main.AppBrain;
 import milestones.Milestone;
 import fileio.CommandInput;
 import tickets.Ticket;
-import users.User;
+import users.Developer;
 
 public class MilestoneCreator {
     private final AppBrain brain;
@@ -45,8 +45,8 @@ public class MilestoneCreator {
         Milestone newMilestone = new Milestone(commandInput, brain);
         brain.getMilestones().add(newMilestone);
         newMilestone.getManagerMilestone().getUserMilestones().add(newMilestone);
-        List<User> devsList = newMilestone.getAssignedDevs();
-        for (User currDev : devsList) {
+        List<Developer> devsList = newMilestone.getAssignedDevs();
+        for (Developer currDev : devsList) {
             currDev.getUserMilestones().add(newMilestone);
         }
         List<Milestone> blockingFor = commandInput.getBlockingFor().stream()

@@ -19,4 +19,5 @@ public final class CommandInput {
     private List<Integer> tickets;
     private List<String> assignedDevs;
     private String comment;
+    private int ticketID;
 }
