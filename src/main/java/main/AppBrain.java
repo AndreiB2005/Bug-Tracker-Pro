@@ -40,6 +40,8 @@ public class AppBrain {
     private final TicketDispenser ticketDispenser = new TicketDispenser(this);
     private final AssignedTicketPrinter ticketPrinterDev = new AssignedTicketPrinter();
     private final TicketRemover ticketRemover = new TicketRemover();
+    private final CommentGenerator commentGenerator = new CommentGenerator(tickets);
+    private final CommentRemover commentRemover = new CommentRemover(tickets);
     private LocalDate testPhaseStart;
     private LocalDate currDate;
     private boolean stopRun = false;

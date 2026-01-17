@@ -15,12 +15,6 @@ public class Manager extends User {
         subordinates = userInput.getSubordinates();
     }
 
-    public List<Ticket> getUserTickets(final List<Ticket> tickets) {
-        return tickets.stream()
-                .sorted(
-                        Comparator.comparing(Ticket::getCreatedAt)
-                                .thenComparing(Ticket::getId)
-                )
-                .toList();
+    public void checkComment(final Ticket ticket) {
     }
 }

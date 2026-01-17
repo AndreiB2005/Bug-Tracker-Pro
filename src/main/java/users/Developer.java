@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 import fileio.UserInput;
 import expertise.ExpertiseArea;
 import tickets.Ticket;
+import commandCenter.errors.CommentNotAssignedError;
 
 public class Developer extends User {
     private final String hireDate;
@@ -57,17 +58,6 @@ public class Developer extends User {
         seniority = Seniority.valueOf(userInput.getSeniority());
     }
 
-    public List<Ticket> getUserTickets(final List<Ticket> tickets) {
-        return getUserMilestones().stream()
-                .flatMap(milestone -> milestone.getTickets().stream())
-                .filter(ticket -> "OPEN".equals(ticket.getStatus()))
-                .sorted(
-                        Comparator.comparing(Ticket::getCreatedAt)
-                                .thenComparing(Ticket::getId)
-                )
-                .toList();
-    }
-
     public List<Ticket> getAssignedTickets() {
         return assignedTickets;
     }
@@ -109,5 +99,11 @@ public class Developer extends User {
                 .map(Enum::name)
                 .sorted()
                 .toList();
+    }
+
+    public void checkComment(final Ticket ticket) throws CommentNotAssignedError {
+        if (!assignedTickets.contains(ticket)) {
+            throw new CommentNotAssignedError(getUsername(), ticket.getId());
+        }
     }
 }

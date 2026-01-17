@@ -26,7 +26,9 @@ public class CommandHandler {
             "viewMilestones", List.of("MANAGER", "DEVELOPER"),
             "assignTicket", List.of("DEVELOPER"),
             "viewAssignedTickets", List.of("DEVELOPER"),
-            "undoAssignTicket", List.of("DEVELOPER")
+            "undoAssignTicket", List.of("DEVELOPER"),
+            "addComment", List.of("REPORTER", "DEVELOPER"),
+            "undoAddComment", List.of("REPORTER", "DEVELOPER")
     );
     
     public CommandHandler(final AppBrain brain) {
@@ -103,6 +105,10 @@ public class CommandHandler {
             case "undoAssignTicket":
                 return new UndoAssignTicket(input, brain.getTicketRemover(),
                         getDeveloper(input.getUsername()));
+            case "addComment":
+                return new AddComment(input, brain.getCommentGenerator());
+            case "undoAddComment":
+                return new UndoAddComment(input, brain.getCommentRemover());
             default:
                 return null;
         }

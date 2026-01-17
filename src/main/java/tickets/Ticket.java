@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.time.LocalDate;
 import fileio.TicketInput;
-import fileio.CommandInput;
 import expertise.ExpertiseArea;
 
 public abstract class Ticket {
@@ -59,15 +58,15 @@ public abstract class Ticket {
     }
 
     @Getter
-    private class Comment {
+    public static class Comment {
         private final String author;
         private final String content;
-        private final String createdAt;
+        private final LocalDate createdAt;
 
-        public Comment(final CommandInput commandInput) {
-            author = commandInput.getUsername();
-            content = commandInput.getComment();
-            createdAt = commandInput.getTimestamp();
+        public Comment(final String author, final String content, final LocalDate createdAt) {
+            this.author = author;
+            this.content = content;
+            this.createdAt = createdAt;
         }
     }
 
@@ -96,11 +95,11 @@ public abstract class Ticket {
 
     public ArrayNode createCommentNode(final ObjectMapper mapper) {
         ArrayNode arrayComments = mapper.createArrayNode();
-        for (Ticket.Comment comment : comments) {
+        for (Comment comment : comments) {
             ObjectNode commentNode = mapper.createObjectNode();
             commentNode.put("author", comment.getAuthor());
             commentNode.put("content", comment.getContent());
-            commentNode.put("createdAt", comment.getCreatedAt());
+            commentNode.put("createdAt", comment.getCreatedAt().toString());
             arrayComments.add(commentNode);
         }
         return arrayComments;

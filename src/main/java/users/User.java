@@ -2,16 +2,18 @@ package users;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Comparator;
 import fileio.UserInput;
 import tickets.Ticket;
 import milestones.Milestone;
+import strategies.TicketViewStrategy;
+import commandCenter.errors.CommandError;
 
 public abstract class User {
     private final String username;
     private final String email;
     private final Role role;
     private final List<Milestone> userMilestones = new ArrayList<>();
+    private TicketViewStrategy strategy;
 
     private enum Role {
         REPORTER,
@@ -37,5 +39,13 @@ public abstract class User {
         return userMilestones;
     }
 
-    public abstract List<Ticket> getUserTickets(final List<Ticket> tickets);
+    public TicketViewStrategy getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(final TicketViewStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public abstract void checkComment(final Ticket ticket) throws CommandError;
 }
