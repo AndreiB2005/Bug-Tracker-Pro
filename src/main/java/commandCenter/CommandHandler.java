@@ -18,19 +18,22 @@ public class CommandHandler {
     private final AppBrain brain;
     private int currTicketId = 0;
 
-    private static final Map<String, List<String>> accessMap = Map.of(
-            "reportTicket", List.of("REPORTER"),
-            "viewTickets", List.of("DEVELOPER", "MANAGER", "REPORTER"),
-            "lostInvestors", List.of("MANAGER"),
-            "createMilestone", List.of("MANAGER"),
-            "viewMilestones", List.of("MANAGER", "DEVELOPER"),
-            "assignTicket", List.of("DEVELOPER"),
-            "viewAssignedTickets", List.of("DEVELOPER"),
-            "undoAssignTicket", List.of("DEVELOPER"),
-            "addComment", List.of("REPORTER", "DEVELOPER"),
-            "undoAddComment", List.of("REPORTER", "DEVELOPER")
+    private static final Map<String, List<String>> accessMap = Map.ofEntries(
+            Map.entry("reportTicket", List.of("REPORTER")),
+            Map.entry("viewTickets", List.of("DEVELOPER", "MANAGER", "REPORTER")),
+            Map.entry("lostInvestors", List.of("MANAGER")),
+            Map.entry("createMilestone", List.of("MANAGER")),
+            Map.entry("viewMilestones", List.of("MANAGER", "DEVELOPER")),
+            Map.entry("assignTicket", List.of("DEVELOPER")),
+            Map.entry("viewAssignedTickets", List.of("DEVELOPER")),
+            Map.entry("undoAssignTicket", List.of("DEVELOPER")),
+            Map.entry("addComment", List.of("REPORTER", "DEVELOPER")),
+            Map.entry("undoAddComment", List.of("REPORTER", "DEVELOPER")),
+            Map.entry("changeStatus", List.of("DEVELOPER")),
+            Map.entry("undoChangeStatus", List.of("DEVELOPER")),
+            Map.entry("viewTicketHistory", List.of("DEVELOPER", "MANAGER"))
     );
-    
+
     public CommandHandler(final AppBrain brain) {
         this.brain = brain;
     }
@@ -109,6 +112,12 @@ public class CommandHandler {
                 return new AddComment(input, brain.getCommentGenerator());
             case "undoAddComment":
                 return new UndoAddComment(input, brain.getCommentRemover());
+            case "changeStatus":
+                return new ChangeStatus(input, brain.getTicketService());
+            case "undoChangeStatus":
+                return new UndoChangeStatus(input, brain.getTicketService());
+            case "viewTicketHistory":
+                return new ViewTicketHistory(input, brain.getHistoryPrinter());
             default:
                 return null;
         }

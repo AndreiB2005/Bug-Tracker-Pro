@@ -106,4 +106,13 @@ public class Developer extends User {
             throw new CommentNotAssignedError(getUsername(), ticket.getId());
         }
     }
+
+    public List<Ticket> getUserTickets() {
+        return getHistoryMap().keySet().stream()
+                .sorted(
+                        Comparator.comparing(Ticket::getCreatedAt)
+                                .thenComparing(Ticket::getId)
+                )
+                .toList();
+    }
 }

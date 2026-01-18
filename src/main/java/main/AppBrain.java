@@ -42,6 +42,8 @@ public class AppBrain {
     private final TicketRemover ticketRemover = new TicketRemover();
     private final CommentGenerator commentGenerator = new CommentGenerator(tickets);
     private final CommentRemover commentRemover = new CommentRemover(tickets);
+    private final TicketService ticketService = new TicketService(developers);
+    private final TicketHistoryPrinter historyPrinter = new TicketHistoryPrinter();
     private LocalDate testPhaseStart;
     private LocalDate currDate;
     private boolean stopRun = false;
@@ -78,6 +80,18 @@ public class AppBrain {
             }
             if (commandOutput != null) {
                 outputs.add(commandOutput.getObjNode());
+            }
+            for (Milestone currMilestone : milestones) {
+                for (Milestone blockedMilestone : currMilestone.getBlockingFor()) {
+                    if (currMilestone.checkTicketsClosed()) {
+                        blockedMilestone.getBlockedBy().remove(currMilestone);
+                        if (blockedMilestone.getBlockedBy().isEmpty()) {
+                            blockedMilestone.setUnblockedAt(currDate);
+                        }
+                    } else if (!blockedMilestone.getBlockedBy().contains(currMilestone)) {
+                        blockedMilestone.getBlockedBy().add(currMilestone);
+                    }
+                }
             }
         }
     }

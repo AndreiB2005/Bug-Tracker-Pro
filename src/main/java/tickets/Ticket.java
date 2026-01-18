@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.time.LocalDate;
 import fileio.TicketInput;
 import expertise.ExpertiseArea;
+import history.TicketEvent;
 
 public abstract class Ticket {
     private final int id;
@@ -24,6 +25,7 @@ public abstract class Ticket {
     private LocalDate solvedAt = null;
     private String assignedTo = null;
     private final List<Comment> comments = new ArrayList<>();
+    private final List<TicketEvent> ticketHistory = new ArrayList<>();
 
     private enum Priority {
         LOW(1),
@@ -54,7 +56,24 @@ public abstract class Ticket {
         OPEN,
         IN_PROGRESS,
         RESOLVED,
-        CLOSED
+        CLOSED;
+
+        public Status getNextStatus() {
+            return switch (this) {
+                case OPEN -> IN_PROGRESS;
+                case IN_PROGRESS -> RESOLVED;
+                case RESOLVED -> CLOSED;
+                default -> this;
+            };
+        }
+
+        public Status getPrevStatus() {
+            return switch (this) {
+                case CLOSED -> RESOLVED;
+                case RESOLVED -> IN_PROGRESS;
+                default -> this;
+            };
+        }
     }
 
     @Getter
@@ -157,6 +176,10 @@ public abstract class Ticket {
         return businessPriority.getPriorityLevel();
     }
 
+    public List<TicketEvent> getTicketHistory() {
+        return ticketHistory;
+    }
+
     public void setBusinessPriority(final String priorityLevel) {
         businessPriority = Priority.valueOf(priorityLevel);
     }
@@ -167,6 +190,14 @@ public abstract class Ticket {
 
     public void setStatus(final String statusLevel) {
         status = Status.valueOf(statusLevel);
+    }
+
+    public void upgradeStatus() {
+        status = status.getNextStatus();
+    }
+
+    public void downgradeStatus() {
+        status = status.getPrevStatus();
     }
 
     public void setAssignedAt(final LocalDate assignedAt) {

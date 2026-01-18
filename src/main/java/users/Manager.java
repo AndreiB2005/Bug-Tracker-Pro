@@ -17,4 +17,14 @@ public class Manager extends User {
 
     public void checkComment(final Ticket ticket) {
     }
+
+    public List<Ticket> getUserTickets() {
+        return getUserMilestones().stream()
+                .flatMap(milestone -> milestone.getTickets().stream())
+                .sorted(
+                        Comparator.comparing(Ticket::getCreatedAt)
+                                .thenComparing(Ticket::getId)
+                )
+                .toList();
+    }
 }

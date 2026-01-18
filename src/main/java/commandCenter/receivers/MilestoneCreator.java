@@ -7,6 +7,7 @@ import milestones.Milestone;
 import fileio.CommandInput;
 import tickets.Ticket;
 import users.Developer;
+import history.TicketEvent;
 
 public class MilestoneCreator {
     private final AppBrain brain;
@@ -58,6 +59,15 @@ public class MilestoneCreator {
         newMilestone.getBlockingFor().addAll(blockingFor);
         for (Milestone blockedMilestone : blockingFor) {
             blockedMilestone.getBlockedBy().add(newMilestone);
+        }
+        TicketEvent event = new TicketEvent.TicketEventBuilder(
+                "ADDED_TO_MILESTONE",
+                newMilestone.getManagerMilestone().getUsername(),
+                newMilestone.getCreatedAt())
+                .addMilestone(newMilestone.getName())
+                .build();
+        for (Ticket ticket : newMilestone.getTickets()) {
+            ticket.getTicketHistory().add(event);
         }
     }
 }

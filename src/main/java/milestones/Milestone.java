@@ -25,6 +25,8 @@ public class Milestone {
     private final List<Developer> assignedDevs;
     private final List<Milestone> blockedBy = new ArrayList<>();
     private int timesUpdated = 0;
+    private LocalDate unblockedAt;
+    private LocalDate lastMilestoneDay;
 
     public Milestone(final CommandInput commandInput, final AppBrain brain) {
         managerMilestone = getManager(brain.getManagers(), commandInput.getUsername());
@@ -33,6 +35,8 @@ public class Milestone {
         tickets = createTicketsList(commandInput.getTickets(), brain.getTickets());
         assignedDevs = createDevsList(commandInput.getAssignedDevs(), brain.getDevelopers());
         createdAt = LocalDate.parse(commandInput.getTimestamp());
+        unblockedAt = createdAt;
+        lastMilestoneDay = createdAt;
     }
 
     public ObjectNode createOutput(final ObjectMapper mapper, final LocalDate currDate) {
@@ -77,7 +81,9 @@ public class Milestone {
             devStats.put("developer", currDev.getUsername());
             ArrayNode assignedTickets = mapper.createArrayNode();
             for (Ticket currTicket : currDev.getAssignedTickets()) {
-                assignedTickets.add(currTicket.getId());
+                if (tickets.contains(currTicket)) {
+                    assignedTickets.add(currTicket.getId());
+                }
             }
             devStats.set("assignedTickets", assignedTickets);
             repartition.add(devStats);
@@ -87,8 +93,9 @@ public class Milestone {
     }
 
     public void updateTickets(final LocalDate timestamp) {
+        lastMilestoneDay = (checkTicketsClosed()) ? lastMilestoneDay : timestamp;
         if (blockedBy.isEmpty()) {
-            int updatesNeeded = (int) ChronoUnit.DAYS.between(createdAt, timestamp) / 3;
+            int updatesNeeded = (int) ChronoUnit.DAYS.between(unblockedAt, timestamp) / 3;
             for (Ticket currTicket : tickets) {
                 if (ChronoUnit.DAYS.between(timestamp, dueDate) <= 1) {
                     currTicket.setBusinessPriority("CRITICAL");
@@ -117,7 +124,7 @@ public class Milestone {
     }
 
     public int getOverdue(final LocalDate currDate) {
-        int daysOverdue = (int) ChronoUnit.DAYS.between(dueDate, currDate) + 1;
+        int daysOverdue = (int) ChronoUnit.DAYS.between(dueDate, lastMilestoneDay) + 1;
         return Math.max(0, daysOverdue);
     }
 
@@ -144,6 +151,19 @@ public class Milestone {
         }
         double percentage = (double) completedTickets / tickets.size();
         return Math.min(1.0, Math.round(percentage * 100.0) / 100.0);
+    }
+
+    public void setUnblockedAt(final LocalDate timestamp) {
+        unblockedAt = timestamp;
+    }
+
+    public boolean checkTicketsClosed() {
+        for (Ticket currTicket : tickets) {
+            if (!currTicket.getStatus().equals("CLOSED")) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private Manager getManager(final List<Manager> allManagers, final String username) {

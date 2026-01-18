@@ -2,10 +2,13 @@ package users;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import fileio.UserInput;
 import tickets.Ticket;
 import milestones.Milestone;
 import strategies.TicketViewStrategy;
+import history.TicketEvent;
 import commandCenter.errors.CommandError;
 
 public abstract class User {
@@ -14,6 +17,7 @@ public abstract class User {
     private final Role role;
     private final List<Milestone> userMilestones = new ArrayList<>();
     private TicketViewStrategy strategy;
+    private final Map<Ticket, ArrayList<TicketEvent>> historyMap = new HashMap<>();
 
     private enum Role {
         REPORTER,
@@ -43,9 +47,15 @@ public abstract class User {
         return strategy;
     }
 
+    public Map<Ticket, ArrayList<TicketEvent>> getHistoryMap() {
+        return historyMap;
+    }
+
     public void setStrategy(final TicketViewStrategy strategy) {
         this.strategy = strategy;
     }
 
     public abstract void checkComment(final Ticket ticket) throws CommandError;
+
+    public abstract List<Ticket> getUserTickets();
 }

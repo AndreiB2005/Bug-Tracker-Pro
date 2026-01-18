@@ -1,10 +1,11 @@
 package commandCenter.receivers;
 
-import java.util.List;
+import java.util.ArrayList;
 import main.AppBrain;
 import users.Developer;
 import tickets.Ticket;
 import milestones.Milestone;
+import history.TicketEvent;
 
 public class TicketDispenser {
     private final AppBrain brain;
@@ -36,5 +37,16 @@ public class TicketDispenser {
         ticket.setStatus("IN_PROGRESS");
         ticket.setAssignedAt(brain.getCurrDate());
         ticket.setAssignedTo(developer.getUsername());
+        TicketEvent eventAssigned = new TicketEvent.TicketEventBuilder(
+                "ASSIGNED", developer.getUsername(), brain.getCurrDate())
+                .build();
+        TicketEvent eventChangedStatus = new TicketEvent.TicketEventBuilder(
+                "STATUS_CHANGED", developer.getUsername(), brain.getCurrDate())
+                .changeStatus("OPEN", "IN_PROGRESS")
+                .build();
+        ticket.getTicketHistory().add(eventAssigned);
+        ticket.getTicketHistory().add(eventChangedStatus);
+        ArrayList<TicketEvent> currEvents = new ArrayList<>(ticket.getTicketHistory());
+        developer.getHistoryMap().put(ticket, currEvents);
     }
 }

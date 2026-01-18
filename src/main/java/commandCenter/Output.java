@@ -5,9 +5,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 import commandCenter.commands.Command;
 import tickets.Ticket;
 import milestones.Milestone;
+import history.TicketEvent;
 
 public class Output {
     private final ObjectNode objNode;
@@ -61,6 +64,37 @@ public class Output {
                 arrayTickets.add(ticketNode);
             }
             objNode.set("assignedTickets", arrayTickets);
+            return this;
+        }
+
+        public OutputBuilder assignTicketHistory(
+                final Map<Ticket, ArrayList<TicketEvent>> history) {
+            ArrayNode ticketHistory = MAPPER.createArrayNode();
+            for (Map.Entry<Ticket, ArrayList<TicketEvent>> historyEntry : history.entrySet()) {
+                ObjectNode ticketNode = MAPPER.createObjectNode();
+                ticketNode.put("id", historyEntry.getKey().getId());
+                ticketNode.put("title", historyEntry.getKey().getTitle());
+                ticketNode.put("status", historyEntry.getKey().getStatus());
+                ArrayNode actions = MAPPER.createArrayNode();
+                for (TicketEvent event : historyEntry.getValue()) {
+                    ObjectNode eventNode = MAPPER.createObjectNode();
+                    if (event.getMilestone() != null) {
+                        eventNode.put("milestone", event.getMilestone());
+                    }
+                    if (event.getOldStatus() != null && event.getNewStatus() != null) {
+                        eventNode.put("from", event.getOldStatus());
+                        eventNode.put("to", event.getNewStatus());
+                    }
+                    eventNode.put("by", event.getUsername());
+                    eventNode.put("timestamp", event.getTimestamp().toString());
+                    eventNode.put("action", event.getAction());
+                    actions.add(eventNode);
+                }
+                ticketNode.set("actions", actions);
+                ticketNode.set("comments", historyEntry.getKey().createCommentNode(MAPPER));
+                ticketHistory.add(ticketNode);
+            }
+            objNode.set("ticketHistory", ticketHistory);
             return this;
         }
 

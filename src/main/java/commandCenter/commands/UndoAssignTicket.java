@@ -25,7 +25,7 @@ public class UndoAssignTicket extends Command {
         if (!currTicket.getStatus().equals("IN_PROGRESS")) {
             throw new NotInProgressError();
         }
-        ticketRemover.removeTicket(developer, currTicket);
+        ticketRemover.removeTicket(developer, currTicket, getTimestamp());
         return null;
     }
 }

@@ -1,6 +1,5 @@
 package users;
 
-import java.util.Comparator;
 import java.util.List;
 import fileio.UserInput;
 import tickets.Ticket;
@@ -15,5 +14,9 @@ public class Reporter extends User {
         if (!getUsername().equals(ticket.getReportedBy())) {
             throw new CommentWrongReporterError(getUsername(), ticket.getId());
         }
+    }
+
+    public List<Ticket> getUserTickets() {
+        return null;
     }
 }
