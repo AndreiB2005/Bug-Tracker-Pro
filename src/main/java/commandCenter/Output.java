@@ -141,6 +141,15 @@ public class Output {
             return this;
         }
 
+        public OutputBuilder assignNotifications(final List<String> notificationList) {
+            ArrayNode notificationArray = MAPPER.createArrayNode();
+            for (String notification : notificationList) {
+                notificationArray.add(notification);
+            }
+            objNode.set("notifications", notificationArray);
+            return this;
+        }
+
         public Output build() {
             return new Output(this);
         }

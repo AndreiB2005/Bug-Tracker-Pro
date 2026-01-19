@@ -47,6 +47,7 @@ public class AppBrain {
     private final TicketService ticketService = new TicketService(developers);
     private final TicketHistoryPrinter historyPrinter = new TicketHistoryPrinter();
     private final SearchEngine searchEngine = new SearchEngine(this);
+    private final NotificationHandler notificationHandler = new NotificationHandler(developers);
     private LocalDate testPhaseStart;
     private LocalDate currDate;
     private boolean stopRun = false;
@@ -90,10 +91,35 @@ public class AppBrain {
                         blockedMilestone.getBlockedBy().remove(currMilestone);
                         if (blockedMilestone.getBlockedBy().isEmpty()) {
                             blockedMilestone.setUnblockedAt(currDate);
+                            if (!blockedMilestone.isSentNotification()) {
+                                if (blockedMilestone.getOverdue(currDate) > 0) {
+                                    blockedMilestone.notifyDevelopers("Milestone "
+                                            + blockedMilestone.getName()
+                                            + " was unblocked after due date. "
+                                            + "All active tickets are now CRITICAL.");
+                                } else {
+                                    blockedMilestone.notifyDevelopers("Milestone "
+                                            + blockedMilestone.getName()
+                                            + " is now unblocked as ticket "
+                                            + currMilestone.getLastTicketResolved()
+                                            + " has been CLOSED.");
+                                }
+                                blockedMilestone.setSentNotification(true);
+                            }
                         }
                     } else if (!blockedMilestone.getBlockedBy().contains(currMilestone)) {
                         blockedMilestone.getBlockedBy().add(currMilestone);
                     }
+                }
+            }
+            for (Milestone currMilestone : milestones) {
+                if (currMilestone.getBlockedBy().isEmpty()
+                        && currMilestone.getDaysUntilDue(currDate) == 2
+                        && currMilestone.getOverdue(currDate) == 0
+                        && !currMilestone.checkTicketsClosed()) {
+                    currMilestone.notifyDevelopers("Milestone "
+                            + currMilestone.getName() + " is due tomorrow. "
+                            + "All unresolved tickets are now CRITICAL.");
                 }
             }
         }

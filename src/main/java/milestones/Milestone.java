@@ -27,6 +27,8 @@ public class Milestone {
     private int timesUpdated = 0;
     private LocalDate unblockedAt;
     private LocalDate lastMilestoneDay;
+    private boolean sentNotification = false;
+    private int lastTicketResolved = -1;
 
     public Milestone(final CommandInput commandInput, final AppBrain brain) {
         managerMilestone = getManager(brain.getManagers(), commandInput.getUsername());
@@ -97,7 +99,8 @@ public class Milestone {
         if (blockedBy.isEmpty()) {
             int updatesNeeded = (int) ChronoUnit.DAYS.between(unblockedAt, timestamp) / 3;
             for (Ticket currTicket : tickets) {
-                if (ChronoUnit.DAYS.between(timestamp, dueDate) <= 1) {
+                if (ChronoUnit.DAYS.between(timestamp, dueDate) <= 1
+                        && !currTicket.getStatus().equals("CLOSED")) {
                     currTicket.setBusinessPriority("CRITICAL");
                 } else {
                     for (int cnt = timesUpdated; cnt < updatesNeeded; cnt++) {
@@ -164,6 +167,28 @@ public class Milestone {
             }
         }
         return true;
+    }
+
+    public void notifyDevelopers(final String notification) {
+        for (Developer currDev : assignedDevs) {
+            currDev.update(notification);
+        }
+    }
+
+    public int getLastTicketResolved() {
+        return lastTicketResolved;
+    }
+
+    public void setLastTicketResolved(final int lastTicketResolved) {
+        this.lastTicketResolved = lastTicketResolved;
+    }
+
+    public boolean isSentNotification() {
+        return sentNotification;
+    }
+
+    public void setSentNotification(final boolean sentNotification) {
+        this.sentNotification = sentNotification;
     }
 
     private Manager getManager(final List<Manager> allManagers, final String username) {

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import users.Developer;
 import tickets.Ticket;
 import history.TicketEvent;
+import milestones.Milestone;
 
 public class TicketService {
     private final List<Developer> developers;
@@ -29,6 +30,15 @@ public class TicketService {
             }
         }
         return null;
+    }
+
+    public void setLastClosed(final Developer developer, final Ticket ticket) {
+        for (Milestone milestone : developer.getUserMilestones()) {
+            if (milestone.getTickets().contains(ticket) && ticket.getStatus().equals("CLOSED")) {
+                milestone.setLastTicketResolved(ticket.getId());
+                break;
+            }
+        }
     }
 
     public void upgradeTicket(final Ticket ticket) {

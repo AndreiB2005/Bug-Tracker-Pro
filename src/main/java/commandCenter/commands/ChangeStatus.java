@@ -28,6 +28,7 @@ public class ChangeStatus extends Command {
         if (!ticket.getStatus().equals(oldStatus)) {
             service.addEvent(developer, ticket, getTimestamp(), oldStatus);
         }
+        service.setLastClosed(developer, ticket);
         return null;
     }
 }

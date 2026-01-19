@@ -32,7 +32,8 @@ public class CommandHandler {
             Map.entry("changeStatus", List.of("DEVELOPER")),
             Map.entry("undoChangeStatus", List.of("DEVELOPER")),
             Map.entry("viewTicketHistory", List.of("DEVELOPER", "MANAGER")),
-            Map.entry("search", List.of("DEVELOPER", "MANAGER"))
+            Map.entry("search", List.of("DEVELOPER", "MANAGER")),
+            Map.entry("viewNotifications", List.of("DEVELOPER"))
     );
 
     public CommandHandler(final AppBrain brain) {
@@ -121,6 +122,8 @@ public class CommandHandler {
                 return new ViewTicketHistory(input, brain.getHistoryPrinter());
             case "search":
                 return new Search(input, brain.getSearchEngine());
+            case "viewNotifications":
+                return new ViewNotifications(input, brain.getNotificationHandler());
             default:
                 return null;
         }

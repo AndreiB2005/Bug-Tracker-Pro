@@ -21,6 +21,7 @@ public class Developer extends User implements SearchMember {
     private final Seniority seniority;
     private final List<Ticket> assignedTickets = new ArrayList<>();
     private double performanceScore = 0.0;
+    private final List<String> notifications = new ArrayList<>();
 
     private enum Seniority {
         JUNIOR(
@@ -152,5 +153,13 @@ public class Developer extends User implements SearchMember {
 
     public String getMemberName() {
         return getUsername();
+    }
+
+    public List<String> getNotifications() {
+        return notifications;
+    }
+
+    public void update(final String notification) {
+        notifications.add(notification);
     }
 }

@@ -69,5 +69,7 @@ public class MilestoneCreator {
         for (Ticket ticket : newMilestone.getTickets()) {
             ticket.getTicketHistory().add(event);
         }
+        newMilestone.notifyDevelopers("New milestone " + newMilestone.getName()
+                + " has been created with due date " + newMilestone.getDueDate() + ".");
     }
 }
