@@ -16,7 +16,7 @@ public abstract class User {
     private final String email;
     private final Role role;
     private final List<Milestone> userMilestones = new ArrayList<>();
-    private TicketViewStrategy strategy;
+    private TicketViewStrategy viewStrategy;
     private final Map<Ticket, ArrayList<TicketEvent>> historyMap = new HashMap<>();
 
     private enum Role {
@@ -43,16 +43,16 @@ public abstract class User {
         return userMilestones;
     }
 
-    public TicketViewStrategy getStrategy() {
-        return strategy;
+    public TicketViewStrategy getViewStrategy() {
+        return viewStrategy;
     }
 
     public Map<Ticket, ArrayList<TicketEvent>> getHistoryMap() {
         return historyMap;
     }
 
-    public void setStrategy(final TicketViewStrategy strategy) {
-        this.strategy = strategy;
+    public void setViewStrategy(final TicketViewStrategy viewStrategy) {
+        this.viewStrategy = viewStrategy;
     }
 
     public abstract void checkComment(final Ticket ticket) throws CommandError;

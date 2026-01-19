@@ -7,7 +7,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Comparator;
 import commandCenter.commands.Command;
+import users.Developer;
 import tickets.Ticket;
 import milestones.Milestone;
 import history.TicketEvent;
@@ -35,6 +37,7 @@ public class Output {
             ArrayNode arrayTickets = MAPPER.createArrayNode();
             for (Ticket ticket : ticketList) {
                 ObjectNode ticketOutput = ticket.createOutput(MAPPER);
+                ticketOutput.put("assignedAt", ticket.getAssignedAt());
                 ticketOutput.put("solvedAt", ticket.getSolvedAt());
                 ticketOutput.put("assignedTo", ticket.getAssignedTo());
                 ticketOutput.put("reportedBy", ticket.getReportedBy());
@@ -59,6 +62,7 @@ public class Output {
             ArrayNode arrayTickets = MAPPER.createArrayNode();
             for (Ticket ticket : ticketList) {
                 ObjectNode ticketNode = ticket.createOutput(MAPPER);
+                ticketNode.put("assignedAt", ticket.getAssignedAt());
                 ticketNode.put("reportedBy", ticket.getReportedBy());
                 ticketNode.set("comments", ticket.createCommentNode(MAPPER));
                 arrayTickets.add(ticketNode);
@@ -95,6 +99,45 @@ public class Output {
                 ticketHistory.add(ticketNode);
             }
             objNode.set("ticketHistory", ticketHistory);
+            return this;
+        }
+
+        public OutputBuilder assignSearchTicket(final List<Ticket> ticketList,
+                                                final List<String> keyWords) {
+            objNode.put("searchType", "TICKET");
+            ArrayNode ticketArray = MAPPER.createArrayNode();
+            for (Ticket ticket : ticketList) {
+                ObjectNode ticketNode = ticket.createOutput(MAPPER);
+                ticketNode.put("solvedAt", ticket.getSolvedAt());
+                ticketNode.put("reportedBy", ticket.getReportedBy());
+                if (keyWords != null) {
+                    List<String> sortedKeyWords = keyWords.stream().sorted().toList();
+                    ArrayNode matchingKeyWordsArray = MAPPER.createArrayNode();
+                    for (String keyWord : sortedKeyWords) {
+                        if (ticket.getTitle().contains(keyWord)
+                                || ticket.getDescription().contains(keyWord)) {
+                            matchingKeyWordsArray.add(keyWord);
+                        }
+                    }
+                    ticketNode.set("matchingWords", matchingKeyWordsArray);
+                }
+                ticketArray.add(ticketNode);
+            }
+            objNode.set("results", ticketArray);
+            return this;
+        }
+
+        public OutputBuilder assignSearchDeveloper(final List<Developer> developerList) {
+            objNode.put("searchType", "DEVELOPER");
+            ArrayNode developerArray = MAPPER.createArrayNode();
+            List<Developer> devList = developerList.stream()
+                    .sorted(Comparator.comparing(Developer::getUsername))
+                    .toList();
+            for (Developer dev : devList) {
+                ObjectNode devNode  = dev.createOutput(MAPPER);
+                developerArray.add(devNode);
+            }
+            objNode.set("results", developerArray);
             return this;
         }
 

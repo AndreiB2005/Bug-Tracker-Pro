@@ -108,7 +108,6 @@ public abstract class Ticket {
         ticketNode.put("businessPriority", getBusinessPriority());
         ticketNode.put("status", getStatus());
         ticketNode.put("createdAt", getCreatedAt());
-        ticketNode.put("assignedAt", getAssignedAt());
         return ticketNode;
     }
 
@@ -178,6 +177,14 @@ public abstract class Ticket {
 
     public List<TicketEvent> getTicketHistory() {
         return ticketHistory;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public LocalDate wasCreatedAt() {
+        return createdAt;
     }
 
     public void setBusinessPriority(final String priorityLevel) {

@@ -31,7 +31,8 @@ public class CommandHandler {
             Map.entry("undoAddComment", List.of("REPORTER", "DEVELOPER")),
             Map.entry("changeStatus", List.of("DEVELOPER")),
             Map.entry("undoChangeStatus", List.of("DEVELOPER")),
-            Map.entry("viewTicketHistory", List.of("DEVELOPER", "MANAGER"))
+            Map.entry("viewTicketHistory", List.of("DEVELOPER", "MANAGER")),
+            Map.entry("search", List.of("DEVELOPER", "MANAGER"))
     );
 
     public CommandHandler(final AppBrain brain) {
@@ -118,6 +119,8 @@ public class CommandHandler {
                 return new UndoChangeStatus(input, brain.getTicketService());
             case "viewTicketHistory":
                 return new ViewTicketHistory(input, brain.getHistoryPrinter());
+            case "search":
+                return new Search(input, brain.getSearchEngine());
             default:
                 return null;
         }

@@ -20,4 +20,5 @@ public final class CommandInput {
     private List<String> assignedDevs;
     private String comment;
     private int ticketID;
+    private SearchInput filters;
 }

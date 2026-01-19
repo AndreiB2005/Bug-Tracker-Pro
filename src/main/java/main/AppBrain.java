@@ -13,6 +13,7 @@ import fileio.CommandInput;
 import factories.userFactories.*;
 import factories.ticketFactories.*;
 import users.User;
+import users.SearchMember;
 import users.Developer;
 import users.Manager;
 import tickets.Ticket;
@@ -29,6 +30,7 @@ public class AppBrain {
     private final List<User> users = new ArrayList<>();
     private final List<Developer> developers =  new ArrayList<>();
     private final List<Manager> managers = new ArrayList<>();
+    private final List<SearchMember> members = new ArrayList<>();
     private final List<CommandInput> commandInputs;
     private final List<Ticket> tickets = new ArrayList<>();
     private final List<Milestone> milestones = new ArrayList<>();
@@ -44,6 +46,7 @@ public class AppBrain {
     private final CommentRemover commentRemover = new CommentRemover(tickets);
     private final TicketService ticketService = new TicketService(developers);
     private final TicketHistoryPrinter historyPrinter = new TicketHistoryPrinter();
+    private final SearchEngine searchEngine = new SearchEngine(this);
     private LocalDate testPhaseStart;
     private LocalDate currDate;
     private boolean stopRun = false;

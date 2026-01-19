@@ -9,6 +9,7 @@ public class DeveloperFactory extends UserFactory {
     protected User createUser(final AppBrain brain, final UserInput userInput) {
         Developer developer = new Developer(userInput);
         brain.getDevelopers().add(developer);
+        brain.getMembers().add(developer);
         return developer;
     }
 }

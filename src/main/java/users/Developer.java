@@ -1,20 +1,26 @@
 package users;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.Stream;
+import java.time.LocalDate;
 import fileio.UserInput;
+import fileio.SearchInput;
 import expertise.ExpertiseArea;
 import tickets.Ticket;
 import commandCenter.errors.CommentNotAssignedError;
+import visitors.Visitor;
 
-public class Developer extends User {
-    private final String hireDate;
+public class Developer extends User implements SearchMember {
+    private final LocalDate hireDate;
     private final ExpertiseArea expertiseArea;
     private final Seniority seniority;
     private final List<Ticket> assignedTickets = new ArrayList<>();
+    private double performanceScore = 0.0;
 
     private enum Seniority {
         JUNIOR(
@@ -53,9 +59,19 @@ public class Developer extends User {
 
     public Developer(final UserInput userInput) {
         super(userInput);
-        hireDate = userInput.getHireDate();
+        hireDate = LocalDate.parse(userInput.getHireDate());
         expertiseArea = ExpertiseArea.valueOf(userInput.getExpertiseArea());
         seniority = Seniority.valueOf(userInput.getSeniority());
+    }
+
+    public ObjectNode createOutput(final ObjectMapper mapper) {
+        ObjectNode developerNode = mapper.createObjectNode();
+        developerNode.put("username", getUsername());
+        developerNode.put("expertiseArea", getExpertiseArea());
+        developerNode.put("seniority", getSeniority());
+        developerNode.put("performanceScore", 0.0);
+        developerNode.put("hireDate", hireDate.toString());
+        return developerNode;
     }
 
     public List<Ticket> getAssignedTickets() {
@@ -80,6 +96,10 @@ public class Developer extends User {
 
     public List<String> getTicketTypes() {
         return seniority.getTicketTypes();
+    }
+
+    public double getPerformanceScore() {
+        return performanceScore;
     }
 
     public static List<String> getRequiredExpertise(String expertise) {
@@ -114,5 +134,23 @@ public class Developer extends User {
                                 .thenComparing(Ticket::getId)
                 )
                 .toList();
+    }
+
+    public boolean canAssignTicket(final Ticket ticket) {
+        List<String> expertiseList = getExpertiseList();
+        List<String> priorityList = getPriorities();
+        List<String> typeList = getTicketTypes();
+        return expertiseList.contains(ticket.getExpertiseArea())
+                && priorityList.contains(ticket.getBusinessPriority())
+                && typeList.contains(ticket.getType());
+    }
+
+    public <T> List<T> acceptList(final Visitor<T> visitor, final SearchInput input,
+                                   final List<T> list) {
+        return visitor.returnFilteredList(this, input, list);
+    }
+
+    public String getMemberName() {
+        return getUsername();
     }
 }

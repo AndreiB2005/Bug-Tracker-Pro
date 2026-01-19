@@ -20,7 +20,7 @@ public class TicketPrinter {
     }
 
     public List<Ticket> printTicketList(final User currUser) {
-        currUser.setStrategy(strategyMap.get(currUser.getRole()));
-        return currUser.getStrategy().viewTickets(currUser, ticketList);
+        currUser.setViewStrategy(strategyMap.get(currUser.getRole()));
+        return currUser.getViewStrategy().viewTickets(currUser, ticketList);
     }
 }
